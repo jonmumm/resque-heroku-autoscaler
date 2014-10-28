@@ -27,13 +27,15 @@ module Resque
       end
 
       def set_workers(number_of_workers)
+        worker_process = config.worker_process(@queue)
         if number_of_workers != current_workers
-          heroku_api.post_ps_scale(config.heroku_app, 'worker', number_of_workers)
+          heroku_api.post_ps_scale(config.heroku_app, worker_process, number_of_workers)
         end
       end
 
       def current_workers
-        heroku_api.get_ps(config.heroku_app).body.count {|p| p['process'].match(/worker\.\d+/) }
+        worker_process = config.worker_process(@queue)
+        heroku_api.get_ps(config.heroku_app).body.count {|p| p['process'].match(/#{worker_process}\.\d+/) }
       end
 
       def heroku_api

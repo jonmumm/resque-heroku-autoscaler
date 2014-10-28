@@ -36,6 +36,18 @@ module Resque
           end
         end
 
+        def worker_process(queue=nil, *payload, &get_worker_process)
+          if get_worker_process
+            @worker_process = get_worker_process
+          else
+            if @worker_process
+              @worker_process.call(queue, *payload)
+            else
+              'worker'
+            end
+          end
+        end
+
         def reset
           @scaling_disabled = false
           @new_worker_count = Proc.new {|pending| pending >0 ? 1 : 0}
